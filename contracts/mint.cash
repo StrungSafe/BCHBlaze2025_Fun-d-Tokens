@@ -1,30 +1,30 @@
 pragma cashscript ~0.13.0;
 
-contract MintingFund(bytes mintingCategory) 
+// a brute forcy way but get it done first
+// ideally the fund details could be more dynamic
+contract MintingFund(bytes mintingCategory, bytes redeemAsset1, bytes asset1, int amount1, bytes redeemAsset2, bytes asset2, int amount2) 
 {
     // contract has a minting nft
     function mint() {
+        // n
         // return minting baton to contract
         require(tx.inputs[this.activeInputIndex].tokenCategory == mintingCategory);
         require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);
         require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);
 
-        int outputIndex = 0;
-        int tokenCount = 0;
-        do {
-            if(tx.outputs[outputIndex].tokenCategory == mintingCategory) {
-                tokenCount = tokenCount + 1;
+        // n + 1
+        // require minted nft output
+        require(tx.outputs[this.activeInputIndex + 1].tokenCategory == mintingCategory);
+        require(tx.outputs[this.activeInputIndex + 1].tokenCategory.slice(0, 1) == 0x00); // ensure no minting capabilities
 
-                if(outputIndex != this.activeInputIndex) { // this is user's token output
-                    require(tx.outputs[outputIndex].tokenCategory.slice(0, 1) == 0x00); // ensure no minting capabilities
-                }
-            }
+        // n + 2
+        require(tx.outputs[this.activeInputIndex + 2].lockingBytecode == redeemAsset1);
+        require(tx.outputs[this.activeInputIndex + 2].tokenCategory == asset1);
+        require(tx.outputs[this.activeInputIndex + 2].tokenAmount == amount1);
 
-            require(tx.outputs[this.activeInputIndex].tokenCategory == mintingCategory);
-
-            outputIndex = outputIndex + 1;
-        } while(outputIndex < tx.outputs.length);
-        require(tokenCount == 2);
-        // ensure just the contract and user mints
+        // n + 3
+        require(tx.outputs[this.activeInputIndex + 3].lockingBytecode == redeemAsset2);
+        require(tx.outputs[this.activeInputIndex + 3].tokenCategory == asset2);
+        require(tx.outputs[this.activeInputIndex + 3].tokenAmount == amount2);
     }
 }

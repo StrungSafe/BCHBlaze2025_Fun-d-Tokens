@@ -4,6 +4,30 @@
     {
       "name": "mintingCategory",
       "type": "bytes"
+    },
+    {
+      "name": "redeemAsset1",
+      "type": "bytes"
+    },
+    {
+      "name": "asset1",
+      "type": "bytes"
+    },
+    {
+      "name": "amount1",
+      "type": "int"
+    },
+    {
+      "name": "redeemAsset2",
+      "type": "bytes"
+    },
+    {
+      "name": "asset2",
+      "type": "bytes"
+    },
+    {
+      "name": "amount2",
+      "type": "int"
     }
   ],
   "abi": [
@@ -12,36 +36,56 @@
       "inputs": []
     }
   ],
-  "bytecode": "OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_OVER OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_INPUTINDEX OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOBYTECODE OP_INPUTINDEX OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_0 OP_0 OP_BEGIN OP_OVER OP_OUTPUTTOKENCATEGORY OP_3 OP_PICK OP_EQUAL OP_IF OP_DUP OP_1ADD OP_NIP OP_OVER OP_INPUTINDEX OP_NUMNOTEQUAL OP_IF OP_OVER OP_OUTPUTTOKENCATEGORY OP_1 OP_SPLIT OP_DROP 00 OP_EQUALVERIFY OP_ENDIF OP_ENDIF OP_INPUTINDEX OP_OUTPUTTOKENCATEGORY OP_3 OP_PICK OP_EQUALVERIFY OP_OVER OP_1ADD OP_ROT OP_DROP OP_SWAP OP_OVER OP_TXOUTPUTCOUNT OP_GREATERTHANOREQUAL OP_UNTIL OP_2 OP_NUMEQUAL OP_NIP OP_NIP",
-  "source": "pragma cashscript ~0.13.0;\r\n\r\ncontract MintingFund(bytes mintingCategory) \r\n{\r\n    // contract has a minting nft\r\n    function mint() {\r\n        // return minting baton to contract\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == mintingCategory);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);\r\n        require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);\r\n\r\n        int outputIndex = 0;\r\n        int tokenCount = 0;\r\n        do {\r\n            if(tx.outputs[outputIndex].tokenCategory == mintingCategory) {\r\n                tokenCount = tokenCount + 1;\r\n\r\n                if(outputIndex != this.activeInputIndex) { // this is user's token output\r\n                    require(tx.outputs[outputIndex].tokenCategory.slice(0, 1) == 0x00); // ensure no minting capabilities\r\n                }\r\n            }\r\n\r\n            require(tx.outputs[this.activeInputIndex].tokenCategory == mintingCategory);\r\n\r\n            outputIndex = outputIndex + 1;\r\n        } while(outputIndex < tx.outputs.length);\r\n        require(tokenCount == 2);\r\n        // ensure just the contract and user mints\r\n    }\r\n}\r\n",
+  "bytecode": "OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_OVER OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_INPUTINDEX OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOBYTECODE OP_INPUTINDEX OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_INPUTINDEX OP_1ADD OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_1ADD OP_OUTPUTTOKENCATEGORY OP_1 OP_SPLIT OP_DROP 00 OP_EQUALVERIFY OP_INPUTINDEX OP_2 OP_ADD OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_INPUTINDEX OP_2 OP_ADD OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_2 OP_ADD OP_OUTPUTTOKENAMOUNT OP_NUMEQUALVERIFY OP_INPUTINDEX OP_3 OP_ADD OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_INPUTINDEX OP_3 OP_ADD OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_3 OP_ADD OP_OUTPUTTOKENAMOUNT OP_NUMEQUAL",
+  "source": "pragma cashscript ~0.13.0;\r\n\r\n// a brute forcy way but get it done first\r\n// ideally the fund details could be more dynamic\r\ncontract MintingFund(bytes mintingCategory, bytes redeemAsset1, bytes asset1, int amount1, bytes redeemAsset2, bytes asset2, int amount2) \r\n{\r\n    // contract has a minting nft\r\n    function mint() {\r\n        // n\r\n        // return minting baton to contract\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == mintingCategory);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);\r\n        require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);\r\n\r\n        // n + 1\r\n        // require minted nft output\r\n        require(tx.outputs[this.activeInputIndex + 1].tokenCategory == mintingCategory);\r\n        require(tx.outputs[this.activeInputIndex + 1].tokenCategory.slice(0, 1) == 0x00); // ensure no minting capabilities\r\n\r\n        // n + 2\r\n        require(tx.outputs[this.activeInputIndex + 2].lockingBytecode == redeemAsset1);\r\n        require(tx.outputs[this.activeInputIndex + 2].tokenCategory == asset1);\r\n        require(tx.outputs[this.activeInputIndex + 2].tokenAmount == amount1);\r\n\r\n        // n + 3\r\n        require(tx.outputs[this.activeInputIndex + 3].lockingBytecode == redeemAsset2);\r\n        require(tx.outputs[this.activeInputIndex + 3].tokenCategory == asset2);\r\n        require(tx.outputs[this.activeInputIndex + 3].tokenAmount == amount2);\r\n    }\r\n}\r\n",
   "debug": {
-    "bytecode": "c0ce7888c0cec0d188c0c7c0cd8800006578d153798763768b7778c09e6378d1517f750100886868c0d1537988788b7b757c78c4a266529c7777",
-    "sourceMap": "8:26:8:47;:16::62:1;:66::81:0;:8::83:1;9:26:9:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;10:26:10:47:0;:16::64:1;:79::100:0;:68::117:1;:8::119;12:26:12:27:0;13:25:13:26;14:8:26:49;15:26:15:37;:15::52:1;:56::71:0;;:15:::1;:73:21:13:0;16:29:16:39;:::43:1;:16::44;18:19:18:30:0;:34::55;:19:::1;:57:20:17:0;19:39:19:50;:28::65:1;:75::76:0;:28::77:1;;:81::85:0;:20::87:1;18:57:20:17;15:73:21:13;23:31:23:52:0;:20::67:1;:71::86:0;;:12::88:1;25:26:25:37:0;:::41:1;:12::42;;;26:16:26:27:0;:30::47;14:8::49:1;;27:30:27:31:0;:8::33:1;6:4:29:5;",
+    "bytecode": "c0ce7888c0cec0d188c0c7c0cd88c08bd188c08bd1517f75010088c05293cd88c05293d188c05293d39dc05393cd88c05393d188c05393d39c",
+    "sourceMap": "11:26:11:47;:16::62:1;:66::81:0;:8::83:1;12:26:12:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;13:26:13:47:0;:16::64:1;:79::100:0;:68::117:1;:8::119;17:27:17:48:0;:::52:1;:16::67;:8::88;18:27:18:48:0;:::52:1;:16::67;:77::78:0;:16::79:1;;:83::87:0;:8::89:1;21:27:21:48:0;:51::52;:27:::1;:16::69;:8::87;22:27:22:48:0;:51::52;:27:::1;:16::67;:8::79;23:27:23:48:0;:51::52;:27:::1;:16::65;:8::78;26:27:26:48:0;:51::52;:27:::1;:16::69;:8::87;27:27:27:48:0;:51::52;:27:::1;:16::67;:8::79;28:27:28:48:0;:51::52;:27:::1;:16::65;:8::78",
     "logs": [],
     "requires": [
       {
-        "ip": 4,
-        "line": 8
+        "ip": 10,
+        "line": 11
       },
       {
-        "ip": 9,
-        "line": 9
+        "ip": 15,
+        "line": 12
       },
       {
-        "ip": 14,
-        "line": 10
+        "ip": 20,
+        "line": 13
+      },
+      {
+        "ip": 24,
+        "line": 17
+      },
+      {
+        "ip": 32,
+        "line": 18
       },
       {
         "ip": 37,
-        "line": 19
+        "line": 21
       },
       {
-        "ip": 44,
+        "ip": 42,
+        "line": 22
+      },
+      {
+        "ip": 47,
         "line": 23
       },
       {
-        "ip": 56,
+        "ip": 52,
+        "line": 26
+      },
+      {
+        "ip": 57,
         "line": 27
+      },
+      {
+        "ip": 63,
+        "line": 28
       }
     ]
   },
@@ -49,5 +93,5 @@
     "name": "cashc",
     "version": "0.13.0-next.1"
   },
-  "updatedAt": "2025-11-18T22:27:12.271Z"
+  "updatedAt": "2025-11-18T22:43:11.150Z"
 }
