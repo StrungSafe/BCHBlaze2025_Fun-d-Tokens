@@ -1,0 +1,19 @@
+pragma cashscript ~0.13.0;
+
+//
+contract RedeemFund(bytes proofOfBurnCategory, bytes assetCategory)
+{
+    // redeem of this (active) utxo is possible when the proof of burn is in the transaction
+    function redeem() {
+        // proofOfBurn spent, can only burn one at a time
+        int inputIndex = 0;
+        bool passed = false;
+        do {
+            passed = tx.inputs[inputIndex].tokenCategory == proofOfBurnCategory;
+            inputIndex = inputIndex + 1;
+        } while(inputIndex < tx.inputs.length && !passed);
+        require(passed);
+
+        require(tx.inputs[this.activeInputIndex].tokenCategory == assetCategory);
+    }
+}

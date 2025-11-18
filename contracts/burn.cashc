@@ -1,0 +1,57 @@
+{
+  "contractName": "Burn",
+  "constructorInputs": [
+    {
+      "name": "proofOfBurnCategory",
+      "type": "bytes"
+    },
+    {
+      "name": "burnTokenCategory",
+      "type": "bytes"
+    }
+  ],
+  "abi": [
+    {
+      "name": "proveBurn",
+      "inputs": []
+    }
+  ],
+  "bytecode": "OP_INPUTINDEX OP_UTXOBYTECODE OP_INPUTINDEX OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_INPUTINDEX OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCOMMITMENT OP_INPUTINDEX OP_OUTPUTTOKENCOMMITMENT OP_EQUALVERIFY OP_0 OP_0 OP_BEGIN OP_OVER OP_UTXOTOKENCATEGORY OP_3 OP_PICK OP_EQUAL OP_IF OP_DUP OP_1ADD OP_NIP OP_ENDIF OP_OVER OP_1ADD OP_ROT OP_DROP OP_SWAP OP_OVER OP_TXINPUTCOUNT OP_GREATERTHANOREQUAL OP_UNTIL OP_1 OP_NUMEQUALVERIFY OP_0 OP_1 OP_BEGIN OP_OVER OP_OUTPUTTOKENCATEGORY OP_4 OP_PICK OP_EQUAL OP_IF OP_DROP OP_0 OP_ENDIF OP_OVER OP_1ADD OP_ROT OP_DROP OP_SWAP OP_OVER OP_TXINPUTCOUNT OP_LESSTHAN OP_OVER OP_BOOLAND OP_NOT OP_UNTIL OP_NIP OP_NIP OP_NIP",
+  "source": "pragma cashscript ~0.13.0;\r\n\r\ncontract Burn(bytes proofOfBurnCategory, bytes burnTokenCategory) \r\n{\r\n    function proveBurn() {\r\n        // we are able to spend back to the contract the proof of burn token\r\n        require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == proofOfBurnCategory);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);\r\n        require(tx.inputs[this.activeInputIndex].nftCommitment == tx.outputs[this.activeInputIndex].nftCommitment);\r\n\r\n        // prove existence\r\n        int inIndex = 0;\r\n        int burnCount = 0;\r\n        do {\r\n            if (tx.inputs[inIndex].tokenCategory == burnTokenCategory) {\r\n                burnCount = burnCount + 1;\r\n            }\r\n            inIndex = inIndex + 1;\r\n        } while(inIndex < tx.inputs.length);\r\n        require(burnCount == 1);\r\n\r\n        // prove burn\r\n        int outIndex = 0;\r\n        bool tokenNotSeen = true;\r\n        do {\r\n            if (tx.outputs[outIndex].tokenCategory == burnTokenCategory) {\r\n                tokenNotSeen = false;\r\n            }\r\n            outIndex = outIndex + 1;\r\n        } while(outIndex < tx.inputs.length && tokenNotSeen);\r\n        require(tokenNotSeen);\r\n    }\r\n}",
+  "debug": {
+    "bytecode": "c0c7c0cd88c0ce88c0cec0d188c0cfc0d28800006578ce53798763768b7768788b7b757c78c3a266519d00516578d154798763750068788b7b757c78c39f789a9166777777",
+    "sourceMap": "7:26:7:47;:16::64:1;:79::100:0;:68::117:1;:8::119;8:26:8:47:0;:16::62:1;:8::87;9:26:9:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;10:26:10:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;13:22:13:23:0;14:24:14:25;15:8:20:44;16:26:16:33;:16::48:1;:52::69:0;;:16:::1;:71:18:13:0;17:28:17:37;:::41:1;:16::42;16:71:18:13;19:22:19:29:0;:::33:1;:12::34;;;20:16:20:23:0;:26::42;15:8::44:1;;21:29:21:30:0;:8::32:1;24:23:24:24:0;25:28:25:32;26:8:31:61;27:27:27:35;:16::50:1;:54::71:0;;:16:::1;:73:29:13:0;28:16:28:37:1;;27:73:29:13;30:23:30:31:0;:::35:1;:12::36;;;31:16:31:24:0;:27::43;:16:::1;:47::59:0;:16:::1;26:8::61;;5:4:33:5;;",
+    "logs": [],
+    "requires": [
+      {
+        "ip": 6,
+        "line": 7
+      },
+      {
+        "ip": 9,
+        "line": 8
+      },
+      {
+        "ip": 14,
+        "line": 9
+      },
+      {
+        "ip": 19,
+        "line": 10
+      },
+      {
+        "ip": 43,
+        "line": 21
+      },
+      {
+        "ip": 68,
+        "line": 32
+      }
+    ]
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.13.0-next.1"
+  },
+  "updatedAt": "2025-11-18T22:27:12.515Z"
+}

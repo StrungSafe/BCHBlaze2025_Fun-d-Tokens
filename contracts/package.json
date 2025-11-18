@@ -1,0 +1,15 @@
+{
+  "name": "fun(d)Tokens-contracts",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "cashc": "0.13.0-next.1",
+    "cashscript": "0.13.0-next.1"
+  },
+  "scripts": {
+    "mint": "node ./minting_test.js",
+    "build:contracts": "cashc ./mint.cash --output ./mint.cashc && cashc ./burn.cash --output ./burn.cashc && cashc ./redeem.cash --output ./redeem.cashc"
+  }
+}

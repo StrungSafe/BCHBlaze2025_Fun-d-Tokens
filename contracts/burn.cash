@@ -1,0 +1,34 @@
+pragma cashscript ~0.13.0;
+
+contract Burn(bytes proofOfBurnCategory, bytes burnTokenCategory) 
+{
+    function proveBurn() {
+        // we are able to spend back to the contract the proof of burn token
+        require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);
+        require(tx.inputs[this.activeInputIndex].tokenCategory == proofOfBurnCategory);
+        require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);
+        require(tx.inputs[this.activeInputIndex].nftCommitment == tx.outputs[this.activeInputIndex].nftCommitment);
+
+        // prove existence
+        int inIndex = 0;
+        int burnCount = 0;
+        do {
+            if (tx.inputs[inIndex].tokenCategory == burnTokenCategory) {
+                burnCount = burnCount + 1;
+            }
+            inIndex = inIndex + 1;
+        } while(inIndex < tx.inputs.length);
+        require(burnCount == 1);
+
+        // prove burn
+        int outIndex = 0;
+        bool tokenNotSeen = true;
+        do {
+            if (tx.outputs[outIndex].tokenCategory == burnTokenCategory) {
+                tokenNotSeen = false;
+            }
+            outIndex = outIndex + 1;
+        } while(outIndex < tx.inputs.length && tokenNotSeen);
+        require(tokenNotSeen);
+    }
+}
