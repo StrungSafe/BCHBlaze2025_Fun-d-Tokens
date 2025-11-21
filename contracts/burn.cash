@@ -9,26 +9,29 @@ contract Burn(bytes proofOfBurnCategory, bytes burnTokenCategory)
         require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);
         require(tx.inputs[this.activeInputIndex].nftCommitment == tx.outputs[this.activeInputIndex].nftCommitment);
 
-        // prove existence
+        // prove existence first
         int inIndex = 0;
+        bool tokenInputSeen = false;
         int burnCount = 0;
         do {
             if (tx.inputs[inIndex].tokenCategory == burnTokenCategory) {
+                tokenInputSeen = true;
                 burnCount = burnCount + 1;
             }
             inIndex = inIndex + 1;
         } while(inIndex < tx.inputs.length);
-        require(burnCount == 1);
+        require(tokenInputSeen);
+        require(burnCount == 1); // if the redemption can introspect the input token amount (and we guarantee all to be burned) we can redeem many at once
 
-        // prove burn
+        // prove all tokens burned
         int outIndex = 0;
-        bool tokenNotSeen = true;
+        bool tokenOutputSeen = false;
         do {
             if (tx.outputs[outIndex].tokenCategory == burnTokenCategory) {
-                tokenNotSeen = false;
+                tokenOutputSeen = true;
             }
             outIndex = outIndex + 1;
-        } while(outIndex < tx.inputs.length && tokenNotSeen);
-        require(tokenNotSeen);
+        } while(outIndex < tx.inputs.length && !tokenOutputSeen);
+        require(!tokenOutputSeen); // must burn all burn tokens in this transaction
     }
 }

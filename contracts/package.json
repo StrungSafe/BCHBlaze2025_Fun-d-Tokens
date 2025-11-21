@@ -9,7 +9,9 @@
     "cashscript": "0.13.0-next.1"
   },
   "scripts": {
-    "mint": "node ./minting_test.js",
-    "build:contracts": "cashc ./mint.cash --output ./mint.cashc && cashc ./burn.cash --output ./burn.cashc && cashc ./redeem.cash --output ./redeem.cashc"
+    "mock": "node ./mock.js",
+    "test:mint": "node ./minting_test.js",
+    "build": "yarn build:contracts",
+    "build:contracts": "cashc ./mint.cash --output ./mint.cashc && cashc ./fund.cash --output ./fund.cashc && cashc ./burn.cash --output ./burn.cashc && cashc ./redeem.cash --output ./redeem.cashc"
   }
 }

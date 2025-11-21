@@ -1,4 +1,12 @@
-import { Contract, MockNetworkProvider, SignatureTemplate, TransactionBuilder, randomUtxo, randomToken } from 'cashscript';
+import {
+    Contract,
+    MockNetworkProvider,
+    SignatureTemplate,
+    TransactionBuilder,
+    randomUtxo,
+    randomToken,
+    randomNft,
+} from 'cashscript';
 import {
     instantiateSecp256k1,
     instantiateRipemd160,
@@ -27,12 +35,46 @@ const generateWallet = () => {
 const provider = new MockNetworkProvider();
 const wallet = generateWallet();
 
-const initUtxo = randomUtxo({
-    satoshis: 10000000n,
-    vout: 0,
+const proofOfBurn = randomUtxo({
+    token: randomToken({
+        nft: randomNft(),
+    })
+});
+const proofOfCollection = randomUtxo({
+    token: randomToken({
+        nft: randomNft(),
+    })
+});
+const proofOfDistribution = randomUtxo({
+    token: randomToken({
+        nft: randomNft(),
+    })
 });
 
+const asset1 = randomUtxo({
+    token: randomToken(),
+});
+const asset2 = randomUtxo({
+    token: randomToken(),
+});
+
+const fundToken = randomUtxo({
+    token: randomToken({
+        amount: 0n,
+        nft: randomNft({
+            capability: 'minting',
+            commitment: '00,'
+        }),
+    }),
+});
+
+
+
 provider.addUtxo(wallet.address, initUtxo);
+
+
+
+
 
 const authUtxo = initUtxo;
 // amount: bigint;

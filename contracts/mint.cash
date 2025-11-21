@@ -2,7 +2,7 @@ pragma cashscript ~0.13.0;
 
 // a brute forcy way but get it done first
 // ideally the fund details could be more dynamic
-contract MintingFund(bytes mintingCategory, bytes redeemAsset1, bytes asset1, int amount1, bytes redeemAsset2, bytes asset2, int amount2) 
+contract MintingFund(bytes mintingCategory, bytes managerCategory) 
 {
     // contract has a minting nft
     function mint() {
@@ -17,14 +17,15 @@ contract MintingFund(bytes mintingCategory, bytes redeemAsset1, bytes asset1, in
         require(tx.outputs[this.activeInputIndex + 1].tokenCategory == mintingCategory);
         require(tx.outputs[this.activeInputIndex + 1].tokenCategory.slice(0, 1) == 0x00); // ensure no minting capabilities
 
-        // n + 2
-        require(tx.outputs[this.activeInputIndex + 2].lockingBytecode == redeemAsset1);
-        require(tx.outputs[this.activeInputIndex + 2].tokenCategory == asset1);
-        require(tx.outputs[this.activeInputIndex + 2].tokenAmount == amount1);
 
-        // n + 3
-        require(tx.outputs[this.activeInputIndex + 3].lockingBytecode == redeemAsset2);
-        require(tx.outputs[this.activeInputIndex + 3].tokenCategory == asset2);
-        require(tx.outputs[this.activeInputIndex + 3].tokenAmount == amount2);
+        bool managerSeen = false;
+        int inputIndex = 0;
+        do {
+            if(tx.inputs[inputIndex].tokenCategory == managerCategory) {
+                managerSeen = true;
+            }
+            inputIndex = inputIndex + 1;
+        } while(inputIndex < tx.inputs.length);
+        require(managerSeen);
     }
 }
