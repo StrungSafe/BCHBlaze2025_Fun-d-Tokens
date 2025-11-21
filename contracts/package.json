@@ -11,7 +11,9 @@
   "scripts": {
     "mock": "node ./mock.js",
     "test:mint": "node ./minting_test.js",
-    "build": "yarn build:contracts",
-    "build:contracts": "cashc ./mint.cash --output ./mint.cashc && cashc ./fund.cash --output ./fund.cashc && cashc ./burn.cash --output ./burn.cashc && cashc ./redeem.cash --output ./redeem.cashc"
+    "build": "yarn build:all",
+    "build:all": "yarn build:inflow && yarn build:outflow",
+    "build:inflow": "cashc ./inflow.cash --output ./art/inflow.cashc && cashc ./mint.cash --output ./art/mint.cashc && cashc ./collection.cash --output ./art/collection.cashc && cashc ./holdings.cash --output ./art/holdings.cash",
+    "build:outflow": "cashc ./outflow.cash --output ./art/outflow.cashc && cashc ./burn.cash --output ./art/burn.cashc && cashc ./distribute.cash --output ./art/distribute.cashc && cashc ./holdings.cash --output ./art/holdings.cashc"
   }
 }

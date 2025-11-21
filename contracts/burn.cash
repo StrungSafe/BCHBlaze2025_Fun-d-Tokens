@@ -21,8 +21,9 @@ contract Burn(bytes proofOfBurnCategory, bytes burnTokenCategory)
             inIndex = inIndex + 1;
         } while(inIndex < tx.inputs.length);
         require(tokenInputSeen);
-        require(burnCount == 1); // if the redemption can introspect the input token amount (and we guarantee all to be burned) we can redeem many at once
-
+        require(burnCount == 1); // KISS for hackathon 
+        // improve the collection and distribution to count the burn and more than one can happen
+        
         // prove all tokens burned
         int outIndex = 0;
         bool tokenOutputSeen = false;

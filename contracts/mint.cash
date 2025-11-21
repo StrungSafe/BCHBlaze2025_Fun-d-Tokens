@@ -1,11 +1,20 @@
 pragma cashscript ~0.13.0;
 
-// a brute forcy way but get it done first
-// ideally the fund details could be more dynamic
-contract MintingFund(bytes mintingCategory, bytes managerCategory) 
+contract Minting(bytes mintingCategory, bytes managerCategory) 
 {
     // contract has a minting nft
     function mint() {
+        bool managerSeen = false;
+        int inputIndex = 0;
+        do {
+            if(tx.inputs[inputIndex].tokenCategory == managerCategory) {
+                managerSeen = true;
+            }
+            inputIndex = inputIndex + 1;
+        } while(inputIndex < tx.inputs.length);
+        require(managerSeen);
+
+
         // n
         // return minting baton to contract
         require(tx.inputs[this.activeInputIndex].tokenCategory == mintingCategory);
@@ -16,16 +25,5 @@ contract MintingFund(bytes mintingCategory, bytes managerCategory)
         // require minted nft output
         require(tx.outputs[this.activeInputIndex + 1].tokenCategory == mintingCategory);
         require(tx.outputs[this.activeInputIndex + 1].tokenCategory.slice(0, 1) == 0x00); // ensure no minting capabilities
-
-
-        bool managerSeen = false;
-        int inputIndex = 0;
-        do {
-            if(tx.inputs[inputIndex].tokenCategory == managerCategory) {
-                managerSeen = true;
-            }
-            inputIndex = inputIndex + 1;
-        } while(inputIndex < tx.inputs.length);
-        require(managerSeen);
     }
 }

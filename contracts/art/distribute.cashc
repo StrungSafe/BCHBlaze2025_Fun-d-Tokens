@@ -1,0 +1,89 @@
+{
+  "contractName": "Distribute",
+  "constructorInputs": [
+    {
+      "name": "managerCategory",
+      "type": "bytes"
+    },
+    {
+      "name": "holdingsTemplate",
+      "type": "bytes"
+    },
+    {
+      "name": "asset1",
+      "type": "bytes"
+    },
+    {
+      "name": "amount1",
+      "type": "int"
+    },
+    {
+      "name": "redeemAsset2",
+      "type": "bytes"
+    },
+    {
+      "name": "asset2",
+      "type": "bytes"
+    },
+    {
+      "name": "amount2",
+      "type": "int"
+    }
+  ],
+  "abi": [
+    {
+      "name": "assert",
+      "inputs": []
+    }
+  ],
+  "bytecode": "OP_INPUTINDEX OP_UTXOBYTECODE OP_INPUTINDEX OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_OVER OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_INPUTINDEX OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCOMMITMENT OP_INPUTINDEX OP_OUTPUTTOKENCOMMITMENT OP_EQUALVERIFY OP_0 OP_0 OP_0 OP_0 OP_0 OP_0 OP_BEGIN OP_5 OP_PICK OP_UTXOBYTECODE aa20 OP_8 OP_PICK OP_11 OP_PICK OP_CAT OP_10 OP_PICK OP_CAT OP_SHA256 OP_CAT 87 OP_CAT OP_EQUAL OP_6 OP_PICK OP_UTXOTOKENCATEGORY OP_10 OP_PICK OP_EQUAL OP_BOOLAND OP_6 OP_PICK OP_UTXOTOKENAMOUNT OP_11 OP_PICK OP_NUMEQUAL OP_BOOLAND OP_IF OP_1 OP_5 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_FROMALTSTACK OP_FROMALTSTACK OP_2 OP_PICK OP_1ADD OP_3 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_ENDIF OP_5 OP_PICK OP_UTXOBYTECODE OP_11 OP_PICK OP_EQUAL OP_6 OP_PICK OP_UTXOTOKENCATEGORY OP_13 OP_PICK OP_EQUAL OP_BOOLAND OP_6 OP_PICK OP_UTXOTOKENAMOUNT OP_14 OP_PICK OP_NUMEQUAL OP_BOOLAND OP_IF OP_1 OP_4 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_FROMALTSTACK OP_OVER OP_1ADD OP_ROT OP_DROP OP_SWAP OP_ENDIF OP_5 OP_PICK OP_UTXOTOKENCATEGORY OP_7 OP_PICK OP_EQUAL OP_IF OP_DROP OP_1 OP_ENDIF OP_5 OP_PICK OP_1ADD OP_6 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_FROMALTSTACK OP_FROMALTSTACK OP_FROMALTSTACK OP_5 OP_PICK OP_TXOUTPUTCOUNT OP_GREATERTHANOREQUAL OP_UNTIL OP_4 OP_ROLL OP_VERIFY OP_3 OP_ROLL OP_VERIFY OP_ROT OP_1 OP_NUMEQUALVERIFY OP_SWAP OP_2 OP_NUMEQUALVERIFY OP_VERIFY OP_2DROP OP_2DROP OP_2DROP OP_2DROP OP_1",
+  "source": "pragma cashscript ~0.13.0;\n\ncontract Distribute(bytes managerCategory, bytes holdingsTemplate, bytes asset1, int amount1, bytes redeemAsset2, bytes asset2, int amount2) \n{\n    function assert() {\n        // we are able to spend back to the contract the proof of manager\n        require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);\n        require(tx.inputs[this.activeInputIndex].tokenCategory == managerCategory);\n        require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);\n        require(tx.inputs[this.activeInputIndex].nftCommitment == tx.outputs[this.activeInputIndex].nftCommitment);\n        \n        int inputIndex = 0;\n        bool asset1Distributed = false;\n        bool asset2Distributed = false;\n        int asset1DistroCount = 0;\n        int asset2DistroCount = 0;\n        bool managerSeen = false;\n        do {\n            if(tx.inputs[inputIndex].lockingBytecode == new LockingBytecodeP2SH32(sha256(managerCategory + asset1 + holdingsTemplate))\n                && tx.inputs[inputIndex].tokenCategory == asset1\n                && tx.inputs[inputIndex].tokenAmount == amount1) {\n                asset1Distributed = true;\n                asset1DistroCount = asset1DistroCount + 1;\n            }\n\n            if(tx.inputs[inputIndex].lockingBytecode == redeemAsset2\n                && tx.inputs[inputIndex].tokenCategory == asset2\n                && tx.inputs[inputIndex].tokenAmount == amount2) {\n                asset2Distributed = true;\n                asset2DistroCount = asset2DistroCount + 1;\n            }\n\n            if(tx.inputs[inputIndex].tokenCategory == managerCategory) {\n                managerSeen = true;\n            }\n\n            inputIndex = inputIndex + 1;\n        } while(inputIndex < tx.outputs.length);\n        require(asset1Distributed);\n        require(asset2Distributed);\n        require(asset1DistroCount == 1);\n        require(asset2DistroCount == 2);\n        require(managerSeen);\n    }\n}\n",
+  "debug": {
+    "bytecode": "c0c7c0cd88c0ce7888c0cec0d188c0cfc0d288000000000000655579c702aa2058795b797e5a797ea87e01877e875679ce5a79879a5679d05b799c9a6351557a757c6b7c6b7c6b7c6c6c6c52798b537a757c6b7c6c685579c75b79875679ce5d79879a5679d05e799c9a6351547a757c6b7c6b7c6c6c788b7b757c685579ce5779876375516855798b567a757c6b7c6b7c6b7c6b7c6c6c6c6c5579c4a266547a69537a697b519d7c529d696d6d6d6d51",
+    "sourceMap": "7:26:7:47;:16::64:1;:79::100:0;:68::117:1;:8::119;8:26:8:47:0;:16::62:1;:66::81:0;:8::83:1;9:26:9:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;10:26:10:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;12:25:12:26:0;13:33:13:38;14::14;15:32:15:33;16::16;17:27:17:32;18:8:38:48;19:25:19:35;;:15::52:1;:56::134:0;:89::104;;:107::113;;:89:::1;:116::132:0;;:89:::1;:82::133;:56::134;;;:15;20:29:20:39:0;;:19::54:1;:58::64:0;;:19:::1;19:15;21:29:21:39:0;;:19::52:1;:56::63:0;;:19:::1;19:15;21:65:24:13:0;22:36:22:40;:16::41:1;;;;;;;;;;;;;23:36:23:53:0;;:::57:1;:16::58;;;;;;;21:65:24:13;26:25:26:35:0;;:15::52:1;:56::68:0;;:15:::1;27:29:27:39:0;;:19::54:1;:58::64:0;;:19:::1;26:15;28:29:28:39:0;;:19::52:1;:56::63:0;;:19:::1;26:15;28:65:31:13:0;29:36:29:40;:16::41:1;;;;;;;;;;30:36:30:53:0;:::57:1;:16::58;;;28:65:31:13;33:25:33:35:0;;:15::50:1;:54::69:0;;:15:::1;:71:35:13:0;34:16:34:35:1;;33:71:35:13;37:25:37:35:0;;:::39:1;:12::40;;;;;;;;;;;;;;;;38:16:38:26:0;;:29::46;18:8::48:1;;39:16:39:33:0;;:8::35:1;40:16:40:33:0;;:8::35:1;41:16:41:33:0;:37::38;:8::40:1;42:16:42:33:0;:37::38;:8::40:1;43::43:29;5:4:44:5;;;;",
+    "logs": [],
+    "requires": [
+      {
+        "ip": 11,
+        "line": 7
+      },
+      {
+        "ip": 15,
+        "line": 8
+      },
+      {
+        "ip": 20,
+        "line": 9
+      },
+      {
+        "ip": 25,
+        "line": 10
+      },
+      {
+        "ip": 164,
+        "line": 39
+      },
+      {
+        "ip": 167,
+        "line": 40
+      },
+      {
+        "ip": 170,
+        "line": 41
+      },
+      {
+        "ip": 173,
+        "line": 42
+      },
+      {
+        "ip": 174,
+        "line": 43
+      }
+    ]
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.13.0-next.1"
+  },
+  "updatedAt": "2025-11-21T04:17:54.334Z"
+}

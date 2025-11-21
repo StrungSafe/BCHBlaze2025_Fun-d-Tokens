@@ -1,10 +1,8 @@
 pragma cashscript ~0.13.0;
 
-// a brute forcy way but get it done first
-// ideally the fund details could be more dynamic
-contract MintingFund(bytes managerCategory, bytes redeemAsset1, bytes asset1, int amount1, bytes redeemAsset2, bytes asset2, int amount2) 
+contract Distribute(bytes managerCategory, bytes holdingsTemplate, bytes asset1, int amount1, bytes redeemAsset2, bytes asset2, int amount2) 
 {
-    function distribute() {
+    function assert() {
         // we are able to spend back to the contract the proof of manager
         require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);
         require(tx.inputs[this.activeInputIndex].tokenCategory == managerCategory);
@@ -14,22 +12,34 @@ contract MintingFund(bytes managerCategory, bytes redeemAsset1, bytes asset1, in
         int inputIndex = 0;
         bool asset1Distributed = false;
         bool asset2Distributed = false;
+        int asset1DistroCount = 0;
+        int asset2DistroCount = 0;
+        bool managerSeen = false;
         do {
-            if(tx.inputs[inputIndex].lockingBytecode == redeemAsset1
+            if(tx.inputs[inputIndex].lockingBytecode == new LockingBytecodeP2SH32(sha256(managerCategory + asset1 + holdingsTemplate))
                 && tx.inputs[inputIndex].tokenCategory == asset1
                 && tx.inputs[inputIndex].tokenAmount == amount1) {
                 asset1Distributed = true;
+                asset1DistroCount = asset1DistroCount + 1;
             }
 
             if(tx.inputs[inputIndex].lockingBytecode == redeemAsset2
                 && tx.inputs[inputIndex].tokenCategory == asset2
                 && tx.inputs[inputIndex].tokenAmount == amount2) {
                 asset2Distributed = true;
+                asset2DistroCount = asset2DistroCount + 1;
+            }
+
+            if(tx.inputs[inputIndex].tokenCategory == managerCategory) {
+                managerSeen = true;
             }
 
             inputIndex = inputIndex + 1;
         } while(inputIndex < tx.outputs.length);
         require(asset1Distributed);
         require(asset2Distributed);
+        require(asset1DistroCount == 1);
+        require(asset2DistroCount == 2);
+        require(managerSeen);
     }
 }

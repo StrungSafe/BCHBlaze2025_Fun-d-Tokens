@@ -16,6 +16,17 @@ import {
     encodeCashAddress,
 } from '@bitauth/libauth';
 
+import inflow from './art/inflow.cashc' with { type: 'json' };
+import mint from './art/mint.cashc' with { type: 'json' };
+import collection from './art/collection.cashc' with { type: 'json' };
+
+import outflow from './art/outflow.cashc' with { type: 'json' };
+import burn from './art/burn.cashc' with { type: 'json' };
+import distribute from './art/distribute.cashc' with { type: 'json' };
+
+import holdings from './art/holdings.cashc' with { type: 'json' };
+
+
 const secp256k1 = await instantiateSecp256k1();
 const ripemd160 = await instantiateRipemd160();
 const sha256 = await instantiateSha256();
@@ -35,21 +46,38 @@ const generateWallet = () => {
 const provider = new MockNetworkProvider();
 const wallet = generateWallet();
 
-const proofOfBurn = randomUtxo({
-    token: randomToken({
-        nft: randomNft(),
-    })
-});
-const proofOfCollection = randomUtxo({
-    token: randomToken({
-        nft: randomNft(),
-    })
-});
-const proofOfDistribution = randomUtxo({
-    token: randomToken({
-        nft: randomNft(),
-    })
-});
+const contractUtxos = {
+    inflow: randomUtxo({
+        token: randomToken({
+            nft: randomNft(),
+        })
+    }),
+    minting: randomUtxo({
+        token: randomToken({
+            nft: randomNft(),
+        })
+    }),
+    collection: randomUtxo({
+        token: randomToken({
+            nft: randomNft(),
+        })
+    }),
+    outflow: randomUtxo({
+        token: randomToken({
+            nft: randomNft(),
+        })
+    }),
+    burn: randomUtxo({
+        token: randomToken({
+            nft: randomNft(),
+        })
+    }),
+    distribution: randomUtxo({
+        token: randomToken({
+            nft: randomNft(),
+        })
+    }),
+};
 
 const asset1 = randomUtxo({
     token: randomToken(),
@@ -58,7 +86,7 @@ const asset2 = randomUtxo({
     token: randomToken(),
 });
 
-const fundToken = randomUtxo({
+const multiToken = randomUtxo({
     token: randomToken({
         amount: 0n,
         nft: randomNft({
@@ -68,93 +96,13 @@ const fundToken = randomUtxo({
     }),
 });
 
+// const mintContract = new Contract(mint, [fundToken.token.category, proofOfCollection.token.category], { provider });
+const inflowContract = new Contract(inflow, [], { provider });
+const mintContract = new Contract(mint, [], { provider });
+const collectionContract = new Contract(collection, [], { provider });
 
+const outflowContract = new Contract(outflow, [], { provider });
+const burnContract = new Contract(burn, [], { provider });
+const distributeContract = new Contract(distribute, [], { provider });
 
-provider.addUtxo(wallet.address, initUtxo);
-
-
-
-
-
-const authUtxo = initUtxo;
-// amount: bigint;
-//     category: string;
-//     nft?: {
-//         capability: 'none' | 'mutable' | 'minting';
-//         commitment: string;
-//     };
-await new TransactionBuilder({ provider })
-    .addInput(authUtxo, wallet.signatureTemplate.unlockP2PKH())
-    .addOutput({
-        to: wallet.address,
-        amount: authUtxo.satoshis - 1000n,
-        token: {
-            amount: 0n,
-            category: authUtxo.txid,
-            nft: {
-                capability: 'minting',
-                commitment: '',
-            }
-        }
-    })
-    .send();
-
-const mintingToken = (await provider.getUtxos(wallet.address))[0];
-
-await new TransactionBuilder({ provider })
-    .addInput(mintingToken, wallet.signatureTemplate.unlockP2PKH())
-    .addOutput({
-        to: wallet.address,
-        amount: mintingToken.satoshis - 23000n,
-    })
-    .addOutput({
-        to: wallet.address,
-        amount: 10000n,
-        token: {
-            ...mintingToken.token,
-        }
-    })
-    .addOutput({
-        to: wallet.address,
-        amount: 10000n,
-        token: {
-            ...mintingToken.token,
-            nft: {
-                capability: 'none',
-                commitment: '',
-            }
-        }
-    })
-    .send();
-
-const lastToken = (await provider.getUtxos(wallet.address))[2]
-console.log(await provider.getUtxos(wallet.address));
-
-await new TransactionBuilder({ provider })
-    .addInput(lastToken, wallet.signatureTemplate.unlockP2PKH())
-    .addOutput({
-        to: wallet.address,
-        amount: 1000n,
-        token: {
-            ...lastToken.token,
-            amount: 0n
-        }
-    })
-    .addOutput({
-        to: wallet.address,
-        amount: 1000n,
-        token: {
-            ...lastToken.token,
-            amount: 0n
-        }
-    })
-    .addOutput({
-        to: wallet.address,
-        amount: 1000n,
-        token: {
-            ...lastToken.token,
-        }
-    })
-    .send();
-
-console.log('last state', await provider.getUtxos(wallet.address));
+const holdingsContract = new Contract(holdings, [], { provider });
