@@ -1,8 +1,8 @@
 pragma cashscript ~0.13.0;
 
-contract Burn(bytes proofOfBurnCategory, bytes burnTokenCategory) 
+contract Burn(bytes proofOfBurnCategory, bytes burningTokenCategory) 
 {
-    function proveBurn() {
+    function prove() {
         // we are able to spend back to the contract the proof of burn token
         require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);
         require(tx.inputs[this.activeInputIndex].tokenCategory == proofOfBurnCategory);
@@ -14,7 +14,7 @@ contract Burn(bytes proofOfBurnCategory, bytes burnTokenCategory)
         bool tokenInputSeen = false;
         int burnCount = 0;
         do {
-            if (tx.inputs[inIndex].tokenCategory == burnTokenCategory) {
+            if (tx.inputs[inIndex].tokenCategory == burningTokenCategory) {
                 tokenInputSeen = true;
                 burnCount = burnCount + 1;
             }
@@ -28,11 +28,12 @@ contract Burn(bytes proofOfBurnCategory, bytes burnTokenCategory)
         int outIndex = 0;
         bool tokenOutputSeen = false;
         do {
-            if (tx.outputs[outIndex].tokenCategory == burnTokenCategory) {
+
+            if (tx.outputs[outIndex].tokenCategory == burningTokenCategory) {
                 tokenOutputSeen = true;
             }
             outIndex = outIndex + 1;
-        } while(outIndex < tx.inputs.length && !tokenOutputSeen);
+        } while(outIndex < tx.outputs.length && !tokenOutputSeen);
         require(!tokenOutputSeen); // must burn all burn tokens in this transaction
     }
 }

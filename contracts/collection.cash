@@ -14,7 +14,7 @@ contract Collection(bytes managerCategory, bytes nextAsset1, bytes asset1, int a
         } while(inputIndex < tx.inputs.length);
         require(managerSeen);
 
-
+        // assert the assets are collected
         int outputIndex = 0;
         int asset1CollectionCount = 0;
         int asset2CollectionCount = 0;

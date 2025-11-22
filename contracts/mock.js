@@ -53,7 +53,7 @@ const generateWallet = () => {
 };
 
 const provider = new MockNetworkProvider({
-    updateUtxoSet: false,
+    updateUtxoSet: true,
 });
 
 const wallet = generateWallet();
@@ -154,13 +154,13 @@ const asset2 = randomUtxo({
     }),
 });
 
-const payFee = randomUtxo({
+const inflowFee = randomUtxo({
     satoshis: 10000n + 1000n,
 });
 
 
-const asset1HoldingsContract = new Contract(holdings, [contractUtxos.outflow.categoryHex, asset1.token.category, asset1Amount], { provider });
-const asset2HoldingsContract = new Contract(holdings, [contractUtxos.outflow.categoryHex, asset2.token.category, asset2Amount], { provider });
+const asset1HoldingsContract = new Contract(holdings, [contractUtxos.outflow.categoryHex, swapEndianness(asset1.token.category), asset1Amount], { provider });
+const asset2HoldingsContract = new Contract(holdings, [contractUtxos.outflow.categoryHex, swapEndianness(asset2.token.category), asset2Amount], { provider });
 
 
 const inflowContract = new Contract(inflow, [contractUtxos.inflow.categoryHex, contractUtxos.minting.categoryHex, contractUtxos.collection.categoryHex], { provider });
@@ -175,25 +175,28 @@ const collectionContract = new Contract(collection, [
     asset2Amount
 ], { provider });
 
-const outflowContract = new Contract(outflow, [contractUtxos.outflow.categoryHex, contractUtxos.burn.category, contractUtxos.distribution.categoryHex], { provider });
+const outflowContract = new Contract(outflow, [contractUtxos.outflow.categoryHex, contractUtxos.burn.categoryHex, contractUtxos.distribution.categoryHex], { provider });
 const burnContract = new Contract(burn, [contractUtxos.burn.categoryHex, contractUtxos.minting.categoryHex], { provider });
-const distributeContract = new Contract(distribute, [contractUtxos.outflow.categoryHex, holdings.debug.bytecode, asset1.token.category, asset1Amount, asset2.token.category, asset2Amount], { provider });
+const distributeContract = new Contract(distribute, [
+    contractUtxos.outflow.categoryHex,
+    contractUtxos.distribution.categoryHex, 
+    cashAddressToLockingBytecode(asset1HoldingsContract.tokenAddress).bytecode, 
+    swapEndianness(asset1.token.category), 
+    asset1Amount, 
+    cashAddressToLockingBytecode(asset2HoldingsContract.tokenAddress).bytecode,
+    swapEndianness(asset2.token.category), 
+    asset2Amount
+], { provider });
 
-
-
-// hydrate contracts w/ UTXOs
+// hydrate inflow contracts w/ UTXOs
 provider.addUtxo(inflowContract.tokenAddress, contractUtxos.inflow.utxo);
 provider.addUtxo(mintContract.tokenAddress, contractUtxos.minting.utxo);
 provider.addUtxo(collectionContract.tokenAddress, contractUtxos.collection.utxo);
 
-provider.addUtxo(outflowContract.tokenAddress, contractUtxos.outflow.utxo);
-provider.addUtxo(burnContract.tokenAddress, contractUtxos.burn.utxo);
-provider.addUtxo(distributeContract.tokenAddress, contractUtxos.distribution.utxo);
-
 // hydrate wallet w/ UTXOs
 provider.addUtxo(wallet.address, asset1);
 provider.addUtxo(wallet.address, asset2);
-provider.addUtxo(wallet.address, payFee);
+provider.addUtxo(wallet.address, inflowFee);
 
 // mint a composed token
 await new TransactionBuilder({ provider })
@@ -263,81 +266,76 @@ await new TransactionBuilder({ provider })
                 }
             },
         ])
-    .addInput(payFee, wallet.signatureTemplate.unlockP2PKH())
+    .addInput(inflowFee, wallet.signatureTemplate.unlockP2PKH())
     .addOutput({ // change
         to: wallet.address,
         amount: 10000n,
     })
     .send();
 
+// hydrate provider with outflow contracts
+provider.addUtxo(outflowContract.tokenAddress, contractUtxos.outflow.utxo);
+provider.addUtxo(burnContract.tokenAddress, contractUtxos.burn.utxo);
+provider.addUtxo(distributeContract.tokenAddress, contractUtxos.distribution.utxo);
+
 const holding1 = (await asset1HoldingsContract.getUtxos())[0];
 const holding2 = (await asset2HoldingsContract.getUtxos())[0];
 
+const updated = await provider.getUtxos(wallet.address);
+const outflowFee = updated.filter(u => !u.token)[0];
+const composedToken = updated.filter(u => !!u.token)[0];
+
 // redeem a composed token
-await new TransactionBuilder({ provider })
+await new TransactionBuilder({ provider, allowImplicitFungibleTokenBurn: true })
     .addInput(contractUtxos.outflow.utxo, outflowContract.unlock.main())
-    .addInput(contractUtxos.burn.utxo, burnContract.unlock.mint())
+    .addOutput({ // return to contract
+        to: outflowContract.tokenAddress,
+        amount: 1000n,
+        token: {
+            amount: 1n,
+            category: contractUtxos.outflow.category,
+        },
+    })
     .addInput(contractUtxos.distribution.utxo, distributeContract.unlock.assert())
+    .addOutput({
+        to: distributeContract.tokenAddress,
+        amount: 1000n,
+        token: {
+            amount: 1n,
+            category: contractUtxos.distribution.category,
+        },
+    })
     .addInput(holding1, asset1HoldingsContract.unlock.release())
+    .addOutput({
+        to: wallet.address,
+        amount: 1000n,
+        token: {
+            ...holding1.token,
+        }
+    })
     .addInput(holding2, asset2HoldingsContract.unlock.release())
-    .addInput(payFee, wallet.signatureTemplate.unlockP2PKH())
-    .addOutputs(
-        [
-            { // return to contract
-                to: inflowContract.tokenAddress,
-                amount: 1000n,
-                token: {
-                    amount: 1n,
-                    category: contractUtxos.inflow.category
-                },
-            },
-            { // return to contract
-                to: mintContract.tokenAddress,
-                amount: 1000n,
-                token: {
-                    amount: 1n,
-                    category: contractUtxos.minting.category,
-                },
-            },
-            { // return to contract
-                to: collectionContract.tokenAddress,
-                amount: 1000n,
-                token: {
-                    amount: 1n,
-                    category: contractUtxos.collection.category,
-                },
-            },
-            { // collect asset
-                to: asset1HoldingsContract.tokenAddress,
-                amount: 1000n,
-                token: {
-                    category: asset1.token.category,
-                    amount: asset1Amount,
-                }
-            },
-            { // collect asset
-                to: asset2HoldingsContract.tokenAddress,
-                amount: 1000n,
-                token: {
-                    category: asset2.token.category,
-                    amount: asset2Amount,
-                }
-            },
-            { // fun(d) token
-                to: wallet.address,
-                amount: 1000n,
-                token: {
-                    amount: 0n,
-                    category: contractUtxos.minting.category,
-                    nft: {
-                        capability: 'none',
-                        commitment: '00',
-                    }
-                }
-            },
-            { // change
-                to: wallet.address,
-                amount: 10000n,
-            }
-        ])
+    .addOutput({
+        to: wallet.address,
+        amount: 1000n,
+        token: {
+            ...holding2.token,
+        }
+    })
+    .addInput(outflowFee, wallet.signatureTemplate.unlockP2PKH())
+    .addOutput({
+        to: wallet.address,
+        amount: 5000n,
+    })
+    // putting at the end as most contracts want input[n] => output[n]|output[n+1]
+    // this will make the outputs uneven amount
+    .addInput(contractUtxos.burn.utxo, burnContract.unlock.prove())
+    .addInput(composedToken, wallet.signatureTemplate.unlockP2PKH()) // no token output will burn token
+    .addOutput({ // return to contract
+        to: burnContract.tokenAddress,
+        amount: 1000n,
+        token: {
+            amount: 1n,
+            category: contractUtxos.burn.category,
+        },
+    })
     .send();
