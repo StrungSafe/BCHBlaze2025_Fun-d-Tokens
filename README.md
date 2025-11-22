@@ -45,3 +45,8 @@ The outflow main contract and sub contracts asserts the basket token is burned a
 1. `yarn`
 1. `yarn build`
 1. `yarn mock`
+
+## Dependencies
+
+Node v22.17.0
+Yarn v1.22.22
