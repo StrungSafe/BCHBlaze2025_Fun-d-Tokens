@@ -10,11 +10,11 @@ This means Fun(d) Token transactions use several smaller contracts that focus on
 
 ### Inflow
 
-The inflow main contract and sub contracts asserts asset collection and allows minting of the composite token
+The inflow main contract and sub contracts asserts asset collection and allows minting of the basket token
 
 ### Outflow
 
-The outflow main contract and sub contracts asserts the composite token is burned and allows redeeming for the underlying assets
+The outflow main contract and sub contracts asserts the basket token is burned and allows redeeming for the underlying assets
 
 ## Technology
 
@@ -23,12 +23,12 @@ The outflow main contract and sub contracts asserts the composite token is burne
 
 ## Enhancements
 
-1. A multi-minting and multi-burning design that allows for creating many composite tokens at once
-1. Refactor the contracts to use fungible tokens type for the composite token
+1. A multi-minting and multi-burning design that allows for creating many tokens at once
+1. Refactor the contracts to use fungible tokens type for the token
 1. Contract optimization
-1. Managed composite tokens that act as managed funds
-1. Market driven managed composite tokens
-1. Make the composite token create more robust and flexible (currently hardcoded baset tokens and amounts)
+1. Managed basket tokens
+1. Market driven managed basket tokens
+1. Make the token create more robust and flexible (currently hardcoded tokens and amounts and/or would require additional coding to expand tokens and adjust amounts)
 
 ## How to Run Mock Example
 
@@ -40,7 +40,8 @@ The outflow main contract and sub contracts asserts the composite token is burne
 
 ## Chipnet Example
 
-An example of a simple basket comprised of two tokens can be found on chipnet:
+An example of a simple basket token comprised of two tokens can be found on chipnet:
 
 [Minting Transaction](https://chipnet.chaingraph.cash/tx/5aa843322c03979a7b017d4f7876f3da4b1ba11fdc27d97c2c0b533229371274)
+
 [Redeemption Transaction](https://chipnet.chaingraph.cash/tx/e1fbf2bf0a5947ef70faabc3a89251bac2ef6bac830b907035fda35821169dcb)
