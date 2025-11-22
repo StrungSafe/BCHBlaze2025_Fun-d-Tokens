@@ -2,6 +2,14 @@
 
 Fun(d) Tokens is a user defined token that represents a basket of tokens. Fun(d) Tokens has on-chain minting, redeemption, and real-time auditing
 
+## Chipnet Example
+
+An example of a simple basket token comprised of two tokens can be found on chipnet:
+
+[Minting Transaction](https://chipnet.chaingraph.cash/tx/5aa843322c03979a7b017d4f7876f3da4b1ba11fdc27d97c2c0b533229371274)
+
+[Redeemption Transaction](https://chipnet.chaingraph.cash/tx/e1fbf2bf0a5947ef70faabc3a89251bac2ef6bac830b907035fda35821169dcb)
+
 ## Design Philosphy
 
 Fun(d) Tokens focused on a composable contract structure.
@@ -37,11 +45,3 @@ The outflow main contract and sub contracts asserts the basket token is burned a
 1. `yarn`
 1. `yarn build`
 1. `yarn mock`
-
-## Chipnet Example
-
-An example of a simple basket token comprised of two tokens can be found on chipnet:
-
-[Minting Transaction](https://chipnet.chaingraph.cash/tx/5aa843322c03979a7b017d4f7876f3da4b1ba11fdc27d97c2c0b533229371274)
-
-[Redeemption Transaction](https://chipnet.chaingraph.cash/tx/e1fbf2bf0a5947ef70faabc3a89251bac2ef6bac830b907035fda35821169dcb)
