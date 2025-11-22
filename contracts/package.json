@@ -10,6 +10,7 @@
   },
   "scripts": {
     "mock": "node ./mock.js",
+    "chipnet": "node ./chipnet.js",
     "test:mint": "node ./minting_test.js",
     "build": "yarn build:all",
     "build:all": "yarn build:inflow && yarn build:outflow",

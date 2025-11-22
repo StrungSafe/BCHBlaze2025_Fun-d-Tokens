@@ -12,6 +12,9 @@ contract InflowManager(bytes managerCategory, bytes mintCategory, bytes collecti
         bool mintSeen = false;
         bool collectionSeen = false;
         do {
+            bytes currentToken = tx.inputs[inputIndex].tokenCategory;
+            console.log('found input', inputIndex, currentToken);
+            console.log('looking for mint and collection', mintCategory, collectionCategory);
             if(tx.inputs[inputIndex].tokenCategory == bytes(mintCategory + bytes(0x02))) {
                 mintSeen = true;
             }

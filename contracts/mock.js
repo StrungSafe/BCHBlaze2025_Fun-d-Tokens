@@ -75,9 +75,10 @@ const contractUtxos = {
         utxo: randomUtxo({
             satoshis: 1000n,
             token: randomNFT({
+                amount: 0n,
                 nft: {
                     capability: 'minting',
-                    commitment: '00'
+                    commitment: ''
                 },
             })
         })
