@@ -40,7 +40,7 @@ The outflow main contract and sub contracts asserts the composite token is burne
 
 ## Chipnet Example
 
-A chipnet example can be found here:
+An example of a simple basket comprised of two tokens can be found on chipnet:
 
-[Minting Transaction -- TODO]()
-[Redeemption Transaction -- TODO]()
+[Minting Transaction](https://chipnet.chaingraph.cash/tx/5aa843322c03979a7b017d4f7876f3da4b1ba11fdc27d97c2c0b533229371274)
+[Redeemption Transaction](https://chipnet.chaingraph.cash/tx/e1fbf2bf0a5947ef70faabc3a89251bac2ef6bac830b907035fda35821169dcb)
