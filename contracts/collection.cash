@@ -1,6 +1,6 @@
 pragma cashscript ~0.13.0;
 
-contract Collection(bytes managerCategory, bytes32 nextAsset1, bytes asset1, int amount1, bytes32 nextAsset2, bytes asset2, int amount2) 
+contract Collection(bytes managerCategory, bytes nextAsset1, bytes asset1, int amount1, bytes nextAsset2, bytes asset2, int amount2) 
 {
     function assert() {
         // verify manager in transaction
@@ -19,17 +19,14 @@ contract Collection(bytes managerCategory, bytes32 nextAsset1, bytes asset1, int
         int asset1CollectionCount = 0;
         int asset2CollectionCount = 0;
         do {
-            bytes temp = tx.outputs[outputIndex].lockingBytecode;
-            console.log('testing output', temp, nextAsset1, nextAsset2);
-
-            // TODO: verify locking bytecode
-            if(tx.outputs[outputIndex].tokenCategory == asset1
+            if(tx.outputs[outputIndex].lockingBytecode == nextAsset1
+                && tx.outputs[outputIndex].tokenCategory == asset1
                 && tx.outputs[outputIndex].tokenAmount == amount1) {
                 asset1CollectionCount = asset1CollectionCount + 1;
             }
 
-            // TODO: build and verify locking bytecode
-            if(tx.outputs[outputIndex].tokenCategory == asset2
+            if(tx.outputs[outputIndex].lockingBytecode == nextAsset2
+                && tx.outputs[outputIndex].tokenCategory == asset2
                 && tx.outputs[outputIndex].tokenAmount == amount2) {
                 asset2CollectionCount = asset2CollectionCount + 1;
             }
