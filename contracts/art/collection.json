@@ -1,0 +1,88 @@
+{
+  "contractName": "Collection",
+  "constructorInputs": [
+    {
+      "name": "managerCategory",
+      "type": "bytes"
+    },
+    {
+      "name": "nextAsset1",
+      "type": "bytes32"
+    },
+    {
+      "name": "asset1",
+      "type": "bytes"
+    },
+    {
+      "name": "amount1",
+      "type": "int"
+    },
+    {
+      "name": "nextAsset2",
+      "type": "bytes32"
+    },
+    {
+      "name": "asset2",
+      "type": "bytes"
+    },
+    {
+      "name": "amount2",
+      "type": "int"
+    }
+  ],
+  "abi": [
+    {
+      "name": "assert",
+      "inputs": []
+    }
+  ],
+  "bytecode": "OP_0 OP_0 OP_BEGIN OP_DUP OP_UTXOTOKENCATEGORY OP_3 OP_PICK OP_EQUAL OP_IF OP_1 OP_ROT OP_DROP OP_SWAP OP_ENDIF OP_DUP OP_1ADD OP_NIP OP_DUP OP_TXINPUTCOUNT OP_GREATERTHANOREQUAL OP_UNTIL OP_SWAP OP_VERIFY OP_0 OP_0 OP_0 OP_BEGIN OP_2 OP_PICK OP_OUTPUTBYTECODE OP_3 OP_PICK OP_OUTPUTTOKENCATEGORY OP_8 OP_PICK OP_EQUAL OP_4 OP_PICK OP_OUTPUTTOKENAMOUNT OP_10 OP_PICK OP_NUMEQUAL OP_BOOLAND OP_IF OP_2 OP_PICK OP_1ADD OP_3 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_ENDIF OP_3 OP_PICK OP_OUTPUTTOKENCATEGORY OP_11 OP_PICK OP_EQUAL OP_4 OP_PICK OP_OUTPUTTOKENAMOUNT OP_13 OP_PICK OP_NUMEQUAL OP_BOOLAND OP_IF OP_OVER OP_1ADD OP_ROT OP_DROP OP_SWAP OP_ENDIF OP_3 OP_PICK OP_1ADD OP_4 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_FROMALTSTACK OP_DROP OP_2 OP_PICK OP_TXOUTPUTCOUNT OP_GREATERTHANOREQUAL OP_UNTIL OP_SWAP OP_1 OP_NUMEQUALVERIFY OP_1 OP_NUMEQUALVERIFY OP_2DROP OP_2DROP OP_2DROP OP_2DROP OP_DROP OP_1",
+  "source": "pragma cashscript ~0.13.0;\r\n\r\ncontract Collection(bytes managerCategory, bytes32 nextAsset1, bytes asset1, int amount1, bytes32 nextAsset2, bytes asset2, int amount2) \r\n{\r\n    function assert() {\r\n        // verify manager in transaction\r\n        bool managerSeen = false;\r\n        int inputIndex = 0;\r\n        do {\r\n            if(tx.inputs[inputIndex].tokenCategory == managerCategory) {\r\n                managerSeen = true;\r\n            }\r\n            inputIndex = inputIndex + 1;\r\n        } while(inputIndex < tx.inputs.length);\r\n        require(managerSeen);\r\n\r\n\r\n        int outputIndex = 0;\r\n        int asset1CollectionCount = 0;\r\n        int asset2CollectionCount = 0;\r\n        do {\r\n            bytes temp = tx.outputs[outputIndex].lockingBytecode;\r\n            console.log('testing output', temp, nextAsset1, nextAsset2);\r\n\r\n            // TODO: verify locking bytecode\r\n            if(tx.outputs[outputIndex].tokenCategory == asset1\r\n                && tx.outputs[outputIndex].tokenAmount == amount1) {\r\n                asset1CollectionCount = asset1CollectionCount + 1;\r\n            }\r\n\r\n            // TODO: build and verify locking bytecode\r\n            if(tx.outputs[outputIndex].tokenCategory == asset2\r\n                && tx.outputs[outputIndex].tokenAmount == amount2) {\r\n                asset2CollectionCount = asset2CollectionCount + 1;\r\n            }\r\n            outputIndex = outputIndex + 1;\r\n        } while(outputIndex < tx.outputs.length);\r\n        require(asset1CollectionCount == 1);\r\n        require(asset2CollectionCount == 1);\r\n    }\r\n}\r\n",
+  "debug": {
+    "bytecode": "00006576ce53798763517b757c68768b7776c3a2667c69000000655279cd5379d15879875479d35a799c9a6352798b537a757c6b7c6c685379d15b79875479d35d799c9a63788b7b757c6853798b547a757c6b7c6b7c6c6c755279c4a2667c519d519d6d6d6d6d7551",
+    "sourceMap": "7:27:7:32;8:25:8:26;9:8:14:47;10:25:10:35;:15::50:1;:54::69:0;;:15:::1;:71:12:13:0;11:30:11:34;:16::35:1;;;10:71:12:13;13:25:13:35:0;:::39:1;:12::40;14:16:14:26:0;:29::45;9:8::47:1;;15:16:15:27:0;:8::29:1;18:26:18:27:0;19:36:19:37;20::20;21:8:37:49;22:36:22:47;;:25::64:1;26:26:26:37:0;;:15::52:1;:56::62:0;;:15:::1;27:30:27:41:0;;:19::54:1;:58::65:0;;:19:::1;26:15;27:67:29:13:0;28:40:28:61;;:::65:1;:16::66;;;;;;;27:67:29:13;32:26:32:37:0;;:15::52:1;:56::62:0;;:15:::1;33:30:33:41:0;;:19::54:1;:58::65:0;;:19:::1;32:15;33:67:35:13:0;34:40:34:61;:::65:1;:16::66;;;33:67:35:13;36:26:36:37:0;;:::41:1;:12::42;;;;;;;;;;21:11:37:9;37:16::27:0;;:30::47;21:8::49:1;;38:16:38:37:0;:41::42;:8::44:1;39:41:39:42:0;:8::44:1;5:4:40:5;;;;;",
+    "logs": [
+      {
+        "ip": 37,
+        "line": 23,
+        "data": [
+          "testing output",
+          {
+            "stackIndex": 0,
+            "type": "bytes",
+            "ip": 37
+          },
+          {
+            "stackIndex": 6,
+            "type": "bytes32",
+            "ip": 37
+          },
+          {
+            "stackIndex": 9,
+            "type": "bytes32",
+            "ip": 37
+          }
+        ]
+      }
+    ],
+    "requires": [
+      {
+        "ip": 29,
+        "line": 15
+      },
+      {
+        "ip": 103,
+        "line": 38
+      },
+      {
+        "ip": 105,
+        "line": 39
+      }
+    ]
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.13.0-next.1"
+  },
+  "updatedAt": "2025-11-22T00:12:36.512Z"
+}

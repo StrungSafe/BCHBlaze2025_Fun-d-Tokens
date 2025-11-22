@@ -13,7 +13,8 @@
     "test:mint": "node ./minting_test.js",
     "build": "yarn build:all",
     "build:all": "yarn build:inflow && yarn build:outflow",
-    "build:inflow": "cashc ./inflow.cash --output ./art/inflow.cashc && cashc ./mint.cash --output ./art/mint.cashc && cashc ./collection.cash --output ./art/collection.cashc && cashc ./holdings.cash --output ./art/holdings.cash",
-    "build:outflow": "cashc ./outflow.cash --output ./art/outflow.cashc && cashc ./burn.cash --output ./art/burn.cashc && cashc ./distribute.cash --output ./art/distribute.cashc && cashc ./holdings.cash --output ./art/holdings.cashc"
+    "build:inflow": "cashc ./inflow.cash --output ./art/inflow.json && cashc ./mint.cash --output ./art/mint.json && cashc ./collection.cash --output ./art/collection.json && cashc ./holdings.cash --output ./art/holdings.json",
+    "build:outflow": "cashc ./outflow.cash --output ./art/outflow.json && cashc ./burn.cash --output ./art/burn.json && cashc ./distribute.cash --output ./art/distribute.json && cashc ./holdings.cash --output ./art/holdings.json",
+    "build:other": "cashc ./bytecode.cash --output ./art/bytecode.json"
   }
 }

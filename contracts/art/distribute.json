@@ -1,0 +1,85 @@
+{
+  "contractName": "Distribute",
+  "constructorInputs": [
+    {
+      "name": "managerCategory",
+      "type": "bytes"
+    },
+    {
+      "name": "holdingsTemplate",
+      "type": "bytes"
+    },
+    {
+      "name": "asset1",
+      "type": "bytes"
+    },
+    {
+      "name": "amount1",
+      "type": "int"
+    },
+    {
+      "name": "asset2",
+      "type": "bytes"
+    },
+    {
+      "name": "amount2",
+      "type": "int"
+    }
+  ],
+  "abi": [
+    {
+      "name": "assert",
+      "inputs": []
+    }
+  ],
+  "bytecode": "OP_INPUTINDEX OP_UTXOBYTECODE OP_INPUTINDEX OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_OVER OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_INPUTINDEX OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCOMMITMENT OP_INPUTINDEX OP_OUTPUTTOKENCOMMITMENT OP_EQUALVERIFY OP_0 OP_0 OP_0 OP_0 OP_BEGIN OP_3 OP_PICK OP_UTXOBYTECODE aa20 OP_2 OP_7 OP_PICK OP_CAT OP_9 OP_PICK OP_CAT OP_8 OP_PICK OP_CAT OP_HASH256 OP_CAT 87 OP_CAT OP_EQUAL OP_4 OP_PICK OP_UTXOTOKENCATEGORY OP_8 OP_PICK OP_EQUAL OP_BOOLAND OP_4 OP_PICK OP_UTXOTOKENAMOUNT OP_9 OP_PICK OP_NUMEQUAL OP_BOOLAND OP_IF OP_2 OP_PICK OP_NOT OP_VERIFY OP_1 OP_3 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_ENDIF OP_3 OP_PICK OP_UTXOBYTECODE aa20 OP_6 OP_PICK OP_9 OP_PICK OP_CAT OP_8 OP_PICK OP_CAT OP_HASH256 OP_CAT 87 OP_CAT OP_EQUAL OP_4 OP_PICK OP_UTXOTOKENCATEGORY OP_10 OP_PICK OP_EQUAL OP_BOOLAND OP_4 OP_PICK OP_UTXOTOKENAMOUNT OP_11 OP_PICK OP_NUMEQUAL OP_BOOLAND OP_IF OP_OVER OP_NOT OP_VERIFY OP_1 OP_ROT OP_DROP OP_SWAP OP_ENDIF OP_3 OP_PICK OP_UTXOTOKENCATEGORY OP_5 OP_PICK OP_EQUAL OP_IF OP_DROP OP_1 OP_ENDIF OP_3 OP_PICK OP_1ADD OP_4 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_FROMALTSTACK OP_3 OP_PICK OP_TXOUTPUTCOUNT OP_GREATERTHANOREQUAL OP_UNTIL OP_ROT OP_VERIFY OP_SWAP OP_VERIFY OP_VERIFY OP_2DROP OP_2DROP OP_2DROP OP_DROP OP_1",
+  "source": "pragma cashscript ~0.13.0;\r\n\r\ncontract Distribute(bytes managerCategory, bytes holdingsTemplate, bytes asset1, int amount1, bytes asset2, int amount2) \r\n{\r\n    function assert() {\r\n        // we are able to spend back to the contract the proof of manager\r\n        require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == managerCategory);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);\r\n        require(tx.inputs[this.activeInputIndex].nftCommitment == tx.outputs[this.activeInputIndex].nftCommitment);\r\n        \r\n        int inputIndex = 0;\r\n        bool asset1Distributed = false;\r\n        bool asset2Distributed = false;\r\n        bool managerSeen = false;\r\n        do {\r\n            if(tx.inputs[inputIndex].lockingBytecode == new LockingBytecodeP2SH32(hash256((bytes1(0x02) + managerCategory + asset1 + holdingsTemplate)))\r\n                && tx.inputs[inputIndex].tokenCategory == asset1\r\n                && tx.inputs[inputIndex].tokenAmount == amount1) {\r\n                require(!asset1Distributed);\r\n                asset1Distributed = true;\r\n            }\r\n\r\n            if(tx.inputs[inputIndex].lockingBytecode == new LockingBytecodeP2SH32(hash256(managerCategory + asset1 + holdingsTemplate))\r\n                && tx.inputs[inputIndex].tokenCategory == asset2\r\n                && tx.inputs[inputIndex].tokenAmount == amount2) {\r\n                require(!asset2Distributed);\r\n                asset2Distributed = true;\r\n            }\r\n\r\n            if(tx.inputs[inputIndex].tokenCategory == managerCategory) {\r\n                managerSeen = true;\r\n            }\r\n\r\n            inputIndex = inputIndex + 1;\r\n        } while(inputIndex < tx.outputs.length);\r\n        require(asset1Distributed);\r\n        require(asset2Distributed);\r\n        require(managerSeen);\r\n    }\r\n}\r\n",
+  "debug": {
+    "bytecode": "c0c7c0cd88c0ce7888c0cec0d188c0cfc0d28800000000655379c702aa205257797e59797e58797eaa7e01877e875479ce5879879a5479d059799c9a635279916951537a757c6b7c6c685379c702aa20567959797e58797eaa7e01877e875479ce5a79879a5479d05b799c9a63789169517b757c685379ce5579876375516853798b547a757c6b7c6b7c6c6c5379c4a2667b697c69696d6d6d7551",
+    "sourceMap": "7:26:7:47;:16::64:1;:79::100:0;:68::117:1;:8::119;8:26:8:47:0;:16::62:1;:66::81:0;:8::83:1;9:26:9:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;10:26:10:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;12:25:12:26:0;13:33:13:38;14::14;15:27:15:32;16:8:36:48;17:25:17:35;;:15::52:1;:56::152:0;:98::102;:106::121;;:91:::1;:124::130:0;;:91:::1;:133::149:0;;:91:::1;:82::151;:56::152;;;:15;18:29:18:39:0;;:19::54:1;:58::64:0;;:19:::1;17:15;19:29:19:39:0;;:19::52:1;:56::63:0;;:19:::1;17:15;19:65:22:13:0;20:25:20:42;;:24:::1;:16::44;21:36:21:40:0;:16::41:1;;;;;;;19:65:22:13;24:25:24:35:0;;:15::52:1;:56::135:0;:90::105;;:108::114;;:90:::1;:117::133:0;;:90:::1;:82::134;:56::135;;;:15;25:29:25:39:0;;:19::54:1;:58::64:0;;:19:::1;24:15;26:29:26:39:0;;:19::52:1;:56::63:0;;:19:::1;24:15;26:65:29:13:0;27:25:27:42;:24:::1;:16::44;28:36:28:40:0;:16::41:1;;;26:65:29:13;31:25:31:35:0;;:15::50:1;:54::69:0;;:15:::1;:71:33:13:0;32:16:32:35:1;;31:71:33:13;35:25:35:35:0;;:::39:1;:12::40;;;;;;;;;;36:16:36:26:0;;:29::46;16:8::48:1;;37:16:37:33:0;:8::35:1;38:16:38:33:0;:8::35:1;39::39:29;5:4:40:5;;;;",
+    "logs": [],
+    "requires": [
+      {
+        "ip": 10,
+        "line": 7
+      },
+      {
+        "ip": 14,
+        "line": 8
+      },
+      {
+        "ip": 19,
+        "line": 9
+      },
+      {
+        "ip": 24,
+        "line": 10
+      },
+      {
+        "ip": 67,
+        "line": 20
+      },
+      {
+        "ip": 111,
+        "line": 27
+      },
+      {
+        "ip": 146,
+        "line": 37
+      },
+      {
+        "ip": 148,
+        "line": 38
+      },
+      {
+        "ip": 149,
+        "line": 39
+      }
+    ]
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.13.0-next.1"
+  },
+  "updatedAt": "2025-11-22T00:12:37.573Z"
+}

@@ -1,0 +1,9 @@
+pragma cashscript ~0.13.0;
+
+contract BytecodeTesting(int value, int value2) 
+{
+    function test() {
+        require(value != 0);
+        require(value2 != 0);
+    }
+}

@@ -3,7 +3,6 @@ pragma cashscript ~0.13.0;
 contract InflowManager(bytes managerCategory, bytes mintCategory, bytes collectionCategory)
 {
     function main() {
-        // we are able to spend back to the contract the proof of manager
         require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);
         require(tx.inputs[this.activeInputIndex].tokenCategory == managerCategory);
         require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);
@@ -13,7 +12,7 @@ contract InflowManager(bytes managerCategory, bytes mintCategory, bytes collecti
         bool mintSeen = false;
         bool collectionSeen = false;
         do {
-            if(tx.inputs[inputIndex].tokenCategory == mintCategory) {
+            if(tx.inputs[inputIndex].tokenCategory == bytes(mintCategory + bytes(0x02))) {
                 mintSeen = true;
             }
 

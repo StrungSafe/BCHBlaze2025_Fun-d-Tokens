@@ -1,0 +1,61 @@
+{
+  "contractName": "InflowManager",
+  "constructorInputs": [
+    {
+      "name": "managerCategory",
+      "type": "bytes"
+    },
+    {
+      "name": "mintCategory",
+      "type": "bytes"
+    },
+    {
+      "name": "collectionCategory",
+      "type": "bytes"
+    }
+  ],
+  "abi": [
+    {
+      "name": "main",
+      "inputs": []
+    }
+  ],
+  "bytecode": "OP_INPUTINDEX OP_UTXOBYTECODE OP_INPUTINDEX OP_OUTPUTBYTECODE OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCATEGORY OP_INPUTINDEX OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_INPUTINDEX OP_UTXOTOKENCOMMITMENT OP_INPUTINDEX OP_OUTPUTTOKENCOMMITMENT OP_EQUALVERIFY OP_0 OP_0 OP_0 OP_BEGIN OP_2 OP_PICK OP_UTXOTOKENCATEGORY OP_4 OP_PICK OP_2 OP_CAT OP_EQUAL OP_IF OP_1 OP_ROT OP_DROP OP_SWAP OP_ENDIF OP_2 OP_PICK OP_UTXOTOKENCATEGORY OP_5 OP_PICK OP_EQUAL OP_IF OP_DROP OP_1 OP_ENDIF OP_2 OP_PICK OP_1ADD OP_3 OP_ROLL OP_DROP OP_SWAP OP_TOALTSTACK OP_SWAP OP_FROMALTSTACK OP_2 OP_PICK OP_TXINPUTCOUNT OP_GREATERTHANOREQUAL OP_UNTIL OP_SWAP OP_VERIFY OP_NIP OP_NIP OP_NIP",
+  "source": "pragma cashscript ~0.13.0;\r\n\r\ncontract InflowManager(bytes managerCategory, bytes mintCategory, bytes collectionCategory)\r\n{\r\n    function main() {\r\n        require(tx.inputs[this.activeInputIndex].lockingBytecode == tx.outputs[this.activeInputIndex].lockingBytecode);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == managerCategory);\r\n        require(tx.inputs[this.activeInputIndex].tokenCategory == tx.outputs[this.activeInputIndex].tokenCategory);\r\n        require(tx.inputs[this.activeInputIndex].nftCommitment == tx.outputs[this.activeInputIndex].nftCommitment);\r\n\r\n        int inputIndex = 0;\r\n        bool mintSeen = false;\r\n        bool collectionSeen = false;\r\n        do {\r\n            if(tx.inputs[inputIndex].tokenCategory == bytes(mintCategory + bytes(0x02))) {\r\n                mintSeen = true;\r\n            }\r\n\r\n            if(tx.inputs[inputIndex].tokenCategory == collectionCategory) {\r\n                collectionSeen = true;\r\n            }\r\n            inputIndex = inputIndex + 1;\r\n        } while(inputIndex < tx.inputs.length);\r\n        require(mintSeen);\r\n        require(collectionSeen);\r\n    }\r\n}\r\n",
+  "debug": {
+    "bytecode": "c0c7c0cd88c0ce88c0cec0d188c0cfc0d288000000655279ce5479527e8763517b757c685279ce5579876375516852798b537a757c6b7c6c5279c3a2667c69777777",
+    "sourceMap": "6:26:6:47;:16::64:1;:79::100:0;:68::117:1;:8::119;7:26:7:47:0;:16::62:1;:8::83;8:26:8:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;9:26:9:47:0;:16::62:1;:77::98:0;:66::113:1;:8::115;11:25:11:26:0;12:24:12:29;13:30:13:35;14:8:23:47;15:25:15:35;;:15::50:1;:60::72:0;;:81::85;:60::86:1;:15::87;:89:17:13:0;16:27:16:31;:16::32:1;;;15:89:17:13;19:25:19:35:0;;:15::50:1;:54::72:0;;:15:::1;:74:21:13:0;20:16:20:38:1;;19:74:21:13;22:25:22:35:0;;:::39:1;:12::40;;;;;;;23:16:23:26:0;;:29::45;14:8::47:1;;24:16:24:24:0;:8::26:1;5:4:26:5;;",
+    "logs": [],
+    "requires": [
+      {
+        "ip": 7,
+        "line": 6
+      },
+      {
+        "ip": 10,
+        "line": 7
+      },
+      {
+        "ip": 15,
+        "line": 8
+      },
+      {
+        "ip": 20,
+        "line": 9
+      },
+      {
+        "ip": 65,
+        "line": 24
+      },
+      {
+        "ip": 66,
+        "line": 25
+      }
+    ]
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.13.0-next.1"
+  },
+  "updatedAt": "2025-11-22T00:12:36.036Z"
+}
