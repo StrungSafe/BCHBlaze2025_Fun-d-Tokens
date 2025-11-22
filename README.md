@@ -5,8 +5,8 @@ Fun(d) Tokens is a user defined token that represents a basket of tokens. Fun(d)
 ## Design Philosphy
 
 Fun(d) Tokens focused on a composable contract structure.
-The contracts are designed to work together to prove the transaction is currently designed in a highly parraelizable way.
-This means Fun(d) Token transactions use several smaller contracts that focus on small pieces of validation instead of using one large or many chained contracts.
+The contracts are designed to work together to prove the transaction is currently spent and the contract composition allows for sending transactions in a flexible way.
+Being composed of several transaction means Fun(d) Token transactions use several small contracts that focus on a focused piece of validation vs using one large contract or many chained contracts.
 
 ### Inflow
 
