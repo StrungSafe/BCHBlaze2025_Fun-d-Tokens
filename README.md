@@ -1,4 +1,4 @@
-# BCHBlaze2025_Fun-d-Tokens
+# BCHBlaze2025 - Fun(d) Tokens
 
 Fun(d) Tokens is a user defined token that represents a basket of tokens. Fun(d) Tokens has on-chain minting, redeemption, and real-time auditing
 
