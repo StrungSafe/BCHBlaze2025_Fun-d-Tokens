@@ -16,13 +16,39 @@ Fun(d) Tokens focused on a composable contract structure.
 The contracts are designed to work together to prove the transaction is currently spent and the contract composition allows for sending transactions in a flexible way.
 Being composed of several transaction means Fun(d) Token transactions use several small contracts that focus on a focused piece of validation vs using one large contract or many chained contracts.
 
-### Inflow
+Each contract is designed to validate a single requirement about the transaction and is used in conjunction with others. This design relies on contract "proof by spend" to ensure the transaction properly spends the contract UTXOs. Anytime we see a contract in the transaction we can assume it's passed validation (because the network will reject transactions that don't).
+
+### Inflow (Minting)
 
 The inflow main contract and sub contracts asserts asset collection and allows minting of the basket token
+
+#### Contracts
+
+1. inflow.cash
+    1. main contract, ensures all children are referenced and all children reference main 
+    1. prevents circular dependencies
+    1. call for fund creation/minting 
+1. collection.cash
+    1. verifies the required collateral is collected and sent to the appropriate contract 
+1. mint.cash
+    1. controls the release of the fund's tokens 
 
 ### Outflow
 
 The outflow main contract and sub contracts asserts the basket token is burned and allows redeeming for the underlying assets
+
+#### Contracts
+
+1. outflow.cash
+    1. main contract, ensures all children are referenced and all children reference main
+    1. prevents circular dependencies
+    1. call for redemption   
+1. burn.cash
+    1. burn or collect the fund token 
+1. distribute.cash
+    1. verify all the underlying assets are released 
+1. holdings.cash
+    1. verify releasing the correct token and amount   
 
 ## Technology
 
@@ -48,5 +74,5 @@ The outflow main contract and sub contracts asserts the basket token is burned a
 
 ## Dependencies
 
-Node v22.17.0
-Yarn v1.22.22
+* Node v22.17.0
+* Yarn v1.22.22
